@@ -1,41 +1,20 @@
-use std::collections::HashMap;
+pub mod prime_sieve;
 
-fn sieve(max_number : u64) -> Vec<u64>{
-
-  let mut to_cross: HashMap<u64, u64> = HashMap::new();
-  let mut primes = Vec::new();
-  primes.push(2);
-  
-  for num in (3..max_number).step_by(2){
-    if let Some(step) = to_cross.get(&num){
-      
-      let real_step = *step;
-      let mut next = num + real_step;
-      
-      while to_cross.contains_key(&next){
-        next += real_step;
-      }
-      
-      if next <= max_number {
-        to_cross.insert(next, real_step);
-      }
-      
-      to_cross.remove(&num);
-    } else {
-      
-      primes.push(num);
-      
-      let key = num * num;
-      let value = 2 * num;
-      
-      to_cross.insert(key, value);
-    }
-  }
-  return primes;
-}
+use crate::prime_sieve::PrimeSieve;
 
 fn main() {
-  let primes = sieve(100);
-  println!("{:?}", primes);
-  println!("{}", primes.len());
+    let primes_from_iter = PrimeSieve::new()
+        .take_while(|&p| p < 100)
+        .collect::<Vec<_>>();
+
+    println!("{:?}", primes_from_iter);
+    println!("{}", primes_from_iter.len());
+
+    let n = 10_001usize;
+    let nth_prime = PrimeSieve::new().take(n).last().unwrap();
+    println!("The {}-th prime is {}", n, nth_prime);
+
+    let upper_bound = 2_000_000u64;
+    let sum_primes: u64 = PrimeSieve::new().take_while(|&p| p < upper_bound).sum();
+    println!("Sum of the first {} primes {}", upper_bound, sum_primes);
 }
